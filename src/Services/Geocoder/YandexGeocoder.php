@@ -16,11 +16,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final readonly class YandexGeocoder implements GeocoderInterface
 {
     public function __construct(
-        private string              $apiKey,
+        private string $apiKey,
         private HttpClientInterface $client,
-        private LoggerInterface     $logger,
-    )
-    {
+        private LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -39,12 +38,26 @@ final readonly class YandexGeocoder implements GeocoderInterface
                 'query' => [
                     'geocode' => $query,
                     'apikey' => $this->apiKey,
-                    'json' => true,
+                    'format' => 'json',
                 ],
                 'json' => true,
             ]
         );
 
-        return $response->toArray();
+        $response = $response->toArray();
+        $geoObjects = $response['response']['GeoObjectCollection']['featureMember'];
+
+        $addresses = [];
+        foreach ($geoObjects as $geoObject) {
+            $coordinate = explode(' ', $geoObject['GeoObject']['Point']['pos']);
+
+            $addresses[] = [
+                'address' => $geoObject['GeoObject']['metaDataProperty']['GeocoderMetaData']['text'],
+                'exact' => $geoObject['GeoObject']['metaDataProperty']['GeocoderMetaData']['precision'] === 'exact',
+                'coordinate' => $coordinate[1] . ' ' . $coordinate[0],
+            ];
+        }
+
+        return $addresses;
     }
 }

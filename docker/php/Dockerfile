@@ -7,10 +7,12 @@ COPY . .
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 #
 RUN apt update && apt install -y \
-#    zlib1g-dev \
-#    libzip-dev \
     unzip \
-    git
+    git \
+    libpq-dev
+
+RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql
+RUN docker-php-ext-install pdo pdo_pgsql
 
 RUN chown -R www-data /app
 RUN chown -R www-data /var/www

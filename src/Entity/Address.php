@@ -4,40 +4,58 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-class Address
+use App\Repository\AddressRepository;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: AddressRepository::class)]
+readonly class Address
 {
-    private string $name;
-    private array $coordinate;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private int $id;
+    #[ORM\Column]
+    private string $address;
+    #[ORM\Column]
+    private string $coordinate;
 
     /**
      * @return string
      */
-    public function getName(): string
+    public function getAddress(): string
     {
-        return $this->name;
+        return $this->address;
     }
 
     /**
-     * @param string $name
+     * @param string $address
      */
-    public function setName(string $name): void
+    public function setAddress(string $address): void
     {
-        $this->name = $name;
+        $this->address = $address;
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getCoordinate(): array
+    public function getCoordinate(): string
     {
         return $this->coordinate;
     }
 
     /**
-     * @param array $coordinate
+     * @param string $coordinate
      */
-    public function setCoordinate(array $coordinate): void
+    public function setCoordinate(string $coordinate): void
     {
         $this->coordinate = $coordinate;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 }

@@ -1,15 +1,13 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    {{ form(form) }}
-<script>
-  $(document).ready(function() {
-    $('.address-search').select2({
-      ajax: {
-        url: '/geocoder/search',
-        dataType: 'json',
-      }
-    });
-  })
-</script>
+    <a href="{{ url('create_address') }}">Добавить адрес</a>
+    <table>
+        {% for address in addresses %}
+            <tr>
+                <td>{{ address.address }}</td>
+                <td>{{ address.coordinate }}</td>
+            </tr>
+        {% endfor %}
+    </table>
 {% endblock %}

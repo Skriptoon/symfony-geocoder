@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {{ form(form) }}
+    <script>
+      $(document).ready(function () {
+        const select2Element = $('.address-search');
+        select2Element.select2({
+          ajax: {
+            url: '/geocoder/search',
+            dataType: 'json',
+            allowClear: true,
+            delay: 250,
+          },
+          minimumInputLength: 5,
+        });
+
+        select2Element.on('select2:open', function () {
+          $('.select2-search__field').val($('.address-search').val());
+        });
+      });
+    </script>
+{% endblock %}

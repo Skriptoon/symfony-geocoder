@@ -29,7 +29,7 @@ services:
       - "127.0.0.1:8000:8000"
 
   db:
-    image: postgres:15.2-alpine
+    image: postgres:${POSTGRES_VERSION}-alpine
 #    restart:
     networks:
       - app
@@ -38,7 +38,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "127.0.0.1:3306:3306"
+      - "${DATABASE_PORT}:5432"
     volumes:
       -   db:/var/lib/mysql
 
