@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Repository\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
 readonly class Address
@@ -14,9 +15,13 @@ readonly class Address
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private int $id;
+
     #[ORM\Column]
+    #[Assert\NotBlank(message: 'Поле адрес не может быть пустым')]
     private string $address;
+
     #[ORM\Column]
+    #[Assert\NotBlank(message: 'Некорректный или не точный адрес')]
     private string $coordinate;
 
     /**

@@ -12,6 +12,7 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Throwable;
 
 final readonly class YandexGeocoder implements GeocoderInterface
 {
@@ -31,33 +32,39 @@ final readonly class YandexGeocoder implements GeocoderInterface
      */
     public function search(string $query): array
     {
-        $response = $this->client->request(
-            'GET',
-            'https://geocode-maps.yandex.ru/1.x',
-            [
-                'query' => [
-                    'geocode' => $query,
-                    'apikey' => $this->apiKey,
-                    'format' => 'json',
-                ],
-                'json' => true,
-            ]
-        );
+        try {
+            $response = $this->client->request(
+                'GET',
+                'https://geocode-maps.yandex.ru/1.x',
+                [
+                    'query' => [
+                        'geocode' => $query,
+                        'apikey' => $this->apiKey,
+                        'format' => 'json',
+                    ],
+                    'json' => true,
+                ]
+            );
 
-        $response = $response->toArray();
-        $geoObjects = $response['response']['GeoObjectCollection']['featureMember'];
+            $response = $response->toArray();
+            $geoObjects = $response['response']['GeoObjectCollection']['featureMember'];
 
-        $addresses = [];
-        foreach ($geoObjects as $geoObject) {
-            $coordinate = explode(' ', $geoObject['GeoObject']['Point']['pos']);
+            $addresses = [];
+            foreach ($geoObjects as $geoObject) {
+                $coordinate = explode(' ', $geoObject['GeoObject']['Point']['pos']);
 
-            $addresses[] = [
-                'address' => $geoObject['GeoObject']['metaDataProperty']['GeocoderMetaData']['text'],
-                'exact' => $geoObject['GeoObject']['metaDataProperty']['GeocoderMetaData']['precision'] === 'exact',
-                'coordinate' => $coordinate[1] . ' ' . $coordinate[0],
-            ];
+                $addresses[] = [
+                    'address' => $geoObject['GeoObject']['metaDataProperty']['GeocoderMetaData']['text'],
+                    'exact' => $geoObject['GeoObject']['metaDataProperty']['GeocoderMetaData']['precision'] === 'exact',
+                    'coordinate' => $coordinate[1] . ' ' . $coordinate[0],
+                ];
+            }
+
+            return $addresses;
+        } catch (Throwable $e) {
+            $this->logger->error('Yandex geocoder error', ['exception' => $e]);
+
+            return [];
         }
-
-        return $addresses;
     }
 }

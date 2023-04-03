@@ -6,8 +6,8 @@ namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -35,11 +35,15 @@ class AddressType extends AbstractType
                 $form = $event->getForm();
                 if (isset($data['address'])) {
                     $form->add('address', ChoiceType::class, [
+                        'label' => 'Адрес:',
+                        'attr' => [
+                            'class' => 'form-control address-search',
+                        ],
                         'choices' => [
-                            $data['address'],
+                            $data['address'] => $data['address'],
                         ],
                     ])
-                        ->add('coordinate', TextType::class);
+                        ->add('coordinate', HiddenType::class);
                 }
             }
         );

@@ -1,8 +1,15 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <a href="{{ url('create_address') }}">Добавить адрес</a>
-    <table>
+    <a
+            class="btn btn-primary"
+            href="{{ url('create_address') }}"
+    >Добавить адрес</a>
+    <table class="table mt-4">
+        <tr>
+            <th>Адрес</th>
+            <th>Координаты</th>
+        </tr>
         {% for address in addresses %}
             <tr>
                 <td>{{ address.address }}</td>

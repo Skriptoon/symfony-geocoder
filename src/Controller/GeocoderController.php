@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class GeocoderController extends AbstractController
 {
     #[Route('/addresses', name: 'addresses')]
-    public function index(EntityManagerInterface $entityManager)
+    public function index(EntityManagerInterface $entityManager): Response
     {
         $repo = $entityManager->getRepository(Address::class);
 
@@ -33,33 +33,34 @@ class GeocoderController extends AbstractController
         EntityManagerInterface $entityManager,
     ): Response {
         $address = new Address();
-
         $form = $this->createForm(AddressType::class, $address);
 
         if ($request->isMethod('POST')) {
             $formData = $request->get($form->getName());
 
-            $addressInfo = $geocoder->search($formData['address']);
+            $addressInfo = [];
+            if (isset($formData['address'])) {
+                $addressInfo = $geocoder->search($formData['address']);
+            }
 
             if (count($addressInfo) > 0 && $addressInfo[0]['exact'] === true) {
-                $form->submit(
-                    array_merge(
-                        ['coordinate' => $addressInfo[0]['coordinate']],
-                        $formData,
-                    )
-                );
+                $formData['coordinate'] = $addressInfo[0]['coordinate'];
+            }
 
+            $form->submit($formData);
 
-                if ($form->isSubmitted()) {
-                    $entityManager->persist($address);
-                    $entityManager->flush();
+            if ($form->isSubmitted() && $form->isValid()) {
+                $entityManager->persist($address);
+                $entityManager->flush();
 
-                    return $this->redirectToRoute('addresses');
-                }
+                return $this->redirectToRoute('addresses');
             }
         }
 
-        return $this->render('geocoder/create.html.twig', ['form' => $form]);
+        return $this->render('geocoder/create.html.twig', [
+            'form' => $form,
+            'errors' => $form->getErrors(),
+        ]);
     }
 
     #[Route('geocoder/search')]
